@@ -1,0 +1,11 @@
+# Force LF line endings for shell scripts (prevents CRLF breakage on Windows)
+*.sh text eol=lf
+
+# PowerShell scripts keep platform default (CRLF on Windows is fine)
+*.ps1 text
+
+# Ensure consistent line endings for source files
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf

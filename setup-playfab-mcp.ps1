@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     PlayFab MCP Server - Setup Script
     Configures the PlayFab MCP server for Claude Desktop, Claude Code, VS Code, and/or Cursor.
