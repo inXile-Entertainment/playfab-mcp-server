@@ -123,7 +123,9 @@ function Build-EnvBlock {
         [string]$SecretKey,
         [string]$TenantId,
         [string]$ClientId,
-        [string]$ClientSecret
+        [string]$ClientSecret,
+        [string]$AdxClusterUrl,
+        [string]$AdxDatabase
     )
 
     $env = [ordered]@{
@@ -131,9 +133,11 @@ function Build-EnvBlock {
         PLAYFAB_DEV_SECRET_KEY = $SecretKey
     }
 
-    if ($TenantId)     { $env['AZURE_TENANT_ID']     = $TenantId }
-    if ($ClientId)     { $env['AZURE_CLIENT_ID']      = $ClientId }
-    if ($ClientSecret) { $env['AZURE_CLIENT_SECRET']  = $ClientSecret }
+    if ($TenantId)     { $env['AZURE_TENANT_ID']       = $TenantId }
+    if ($ClientId)     { $env['AZURE_CLIENT_ID']        = $ClientId }
+    if ($ClientSecret) { $env['AZURE_CLIENT_SECRET']    = $ClientSecret }
+    if ($AdxClusterUrl){ $env['AZURE_ADX_CLUSTER_URL']  = $AdxClusterUrl }
+    if ($AdxDatabase)  { $env['AZURE_ADX_DATABASE']     = $AdxDatabase }
 
     return $env
 }
@@ -264,8 +268,31 @@ function Main {
     $clientId     = Read-Optional "Azure Client ID"
     $clientSecret = Read-Optional "Azure Client Secret"
 
+    $adxClusterUrl = $null
+    $adxDatabase   = $null
+
     if ($tenantId -and $clientId -and $clientSecret) {
         Write-Step "Analytics credentials provided"
+
+        Write-Host ""
+        Write-Host "  --- Custom ADX Cluster (optional, advanced) ---" -ForegroundColor White
+        Write-Info "Skip both to use the default PlayFab Insights endpoint."
+        Write-Info "Only needed if your team has a dedicated Azure Data Explorer cluster."
+        Write-Host ""
+
+        $adxClusterUrl = Read-Optional "ADX Cluster URL (e.g. https://mycluster.eastus2.kusto.windows.net)"
+        $adxDatabase   = Read-Optional "ADX Database name"
+
+        if ($adxClusterUrl -and $adxDatabase) {
+            Write-Step "Custom ADX cluster configured"
+        } elseif ($adxClusterUrl -or $adxDatabase) {
+            Write-Warn "Both Cluster URL and Database are needed for a custom ADX cluster."
+            $proceed = Read-Host "  Continue with default PlayFab Insights? (Y/n)"
+            if ($proceed -eq 'n' -or $proceed -eq 'N') { exit 0 }
+            $adxClusterUrl = $null; $adxDatabase = $null
+        } else {
+            Write-Info "Using default PlayFab Insights endpoint."
+        }
     } elseif ($tenantId -or $clientId -or $clientSecret) {
         Write-Warn "Partial Azure credentials. All three (Tenant ID, Client ID, Client Secret) are needed for analytics."
         $proceed = Read-Host "  Continue without analytics? (Y/n)"
@@ -276,7 +303,8 @@ function Main {
     }
 
     $envBlock = Build-EnvBlock -TitleId $titleId -SecretKey $secretKey `
-        -TenantId $tenantId -ClientId $clientId -ClientSecret $clientSecret
+        -TenantId $tenantId -ClientId $clientId -ClientSecret $clientSecret `
+        -AdxClusterUrl $adxClusterUrl -AdxDatabase $adxDatabase
 
     # ── Select clients ───────────────────────────────────────────────────
     Write-Host ""
