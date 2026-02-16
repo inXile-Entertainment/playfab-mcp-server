@@ -278,7 +278,7 @@ Open Claude Desktop and navigate to **File > Settings > Developer > Edit Config*
       "command": "npx",
       "args": [
         "-y",
-        "github:inXile-Entertainment/playfab-mcp-server"
+        "@akiojin/playfab-mcp-server"
       ],
       "env": {
         "PLAYFAB_TITLE_ID": "Your PlayFab Title ID",
@@ -303,7 +303,7 @@ Add the server to your project's `.mcp.json` or your global Claude Code settings
   "mcpServers": {
     "playfab": {
       "command": "npx",
-      "args": ["-y", "github:inXile-Entertainment/playfab-mcp-server"],
+      "args": ["-y", "@akiojin/playfab-mcp-server"],
       "env": {
         "PLAYFAB_TITLE_ID": "Your PlayFab Title ID",
         "PLAYFAB_DEV_SECRET_KEY": "Your PlayFab Developer Secret Key",
@@ -325,7 +325,7 @@ Create `.vscode/mcp.json` in your project root:
   "servers": {
     "PlayFab": {
       "command": "npx",
-      "args": ["-y", "github:inXile-Entertainment/playfab-mcp-server"],
+      "args": ["-y", "@akiojin/playfab-mcp-server"],
       "env": {
         "PLAYFAB_TITLE_ID": "Your PlayFab Title ID",
         "PLAYFAB_DEV_SECRET_KEY": "Your PlayFab Developer Secret Key",
