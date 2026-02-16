@@ -155,7 +155,7 @@ function Merge-McpConfig {
 
     $serverEntry = [ordered]@{
         command = "npx"
-        args    = @("-y", "@akiojin/playfab-mcp-server")
+        args    = @("-y", "github:inXile-Entertainment/playfab-mcp-server")
         env     = $Env
     }
 
