@@ -143,73 +143,65 @@ function Merge-McpConfig {
         env     = $Env
     }
 
+    $hash = $null
+
     if (Test-Path $Path) {
         try {
-            $existing = Get-Content -Path $Path -Raw | ConvertFrom-Json
+            $existing = Get-Content -Path $Path -Raw -Encoding UTF8 | ConvertFrom-Json
             $hash = @{}
-
-            # Convert existing PSObject to hashtable
             foreach ($prop in $existing.PSObject.Properties) {
                 $hash[$prop.Name] = $prop.Value
             }
-
-            # Check if playfab server already exists
-            $wrapper = $hash[$WrapperKey]
-            if ($wrapper) {
-                $servers = @{}
-                foreach ($prop in $wrapper.PSObject.Properties) {
-                    $servers[$prop.Name] = $prop.Value
-                }
-                if ($servers.ContainsKey($ServerKey) -and -not $Force) {
-                    Write-Warn "$Label already has a '$ServerKey' MCP server configured in: $Path"
-                    $overwrite = Read-Host "  Overwrite the playfab entry? (y/N)"
-                    if ($overwrite -ne 'y' -and $overwrite -ne 'Y') {
-                        Write-Info "Skipped $Label."
-                        return
-                    }
-                }
-                $servers[$ServerKey] = $serverEntry
-
-                # Rebuild the wrapper as ordered dict
-                $orderedServers = [ordered]@{}
-                foreach ($key in $servers.Keys) {
-                    $orderedServers[$key] = $servers[$key]
-                }
-                $hash[$WrapperKey] = $orderedServers
-            } else {
-                $hash[$WrapperKey] = [ordered]@{ $ServerKey = $serverEntry }
-            }
-
-            $orderedHash = [ordered]@{}
-            foreach ($key in $hash.Keys) {
-                $orderedHash[$key] = $hash[$key]
-            }
-
-            $json = $orderedHash | ConvertTo-Json -Depth 10
-            $dir = Split-Path -Parent $Path
-            if (-not (Test-Path $dir)) {
-                New-Item -ItemType Directory -Path $dir -Force | Out-Null
-            }
-            $json | Set-Content -Path $Path -Encoding UTF8
-            Write-Step "$Label updated (merged): $Path"
-            return
-
         } catch {
-            Write-Warn "Could not parse existing $Label config. Will overwrite."
+            Write-Warn "Could not parse existing $Label config. A backup will be saved."
+            Copy-Item -Path $Path -Destination "$Path.bak" -Force
         }
     }
 
-    # No existing file or parse failed - write fresh
-    $fresh = [ordered]@{
-        $WrapperKey = [ordered]@{ $ServerKey = $serverEntry }
+    if (-not $hash) { $hash = @{} }
+
+    # Check if playfab server already exists
+    $wrapper = $hash[$WrapperKey]
+    if ($wrapper) {
+        $servers = @{}
+        foreach ($prop in $wrapper.PSObject.Properties) {
+            $servers[$prop.Name] = $prop.Value
+        }
+        if ($servers.ContainsKey($ServerKey) -and -not $Force) {
+            Write-Warn "$Label already has a '$ServerKey' MCP server configured in: $Path"
+            $overwrite = Read-Host "  Overwrite the playfab entry? (y/N)"
+            if ($overwrite -ne 'y' -and $overwrite -ne 'Y') {
+                Write-Info "Skipped $Label."
+                return
+            }
+        }
+        $servers[$ServerKey] = $serverEntry
+
+        $orderedServers = [ordered]@{}
+        foreach ($key in $servers.Keys) {
+            $orderedServers[$key] = $servers[$key]
+        }
+        $hash[$WrapperKey] = $orderedServers
+    } else {
+        $hash[$WrapperKey] = [ordered]@{ $ServerKey = $serverEntry }
     }
-    $json = $fresh | ConvertTo-Json -Depth 10
+
+    $orderedHash = [ordered]@{}
+    foreach ($key in $hash.Keys) {
+        $orderedHash[$key] = $hash[$key]
+    }
+
+    $json = $orderedHash | ConvertTo-Json -Depth 10
     $dir = Split-Path -Parent $Path
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
     $json | Set-Content -Path $Path -Encoding UTF8
-    Write-Step "$Label configured: $Path"
+    if ($wrapper) {
+        Write-Step "$Label updated (merged): $Path"
+    } else {
+        Write-Step "$Label configured: $Path"
+    }
 }
 
 # -- Main --------------------------------------------------------------------
