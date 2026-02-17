@@ -106,25 +106,31 @@ function Merge-McpConfig {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
 
+    # Write env JSON to temp file to avoid PowerShell quote-stripping on args
+    $envTmp = Join-Path $env:TEMP "playfab-mcp-env.json"
+    $EnvJson | Out-File -FilePath $envTmp -Encoding ascii -NoNewline
+
     & node -e "
         const fs = require('fs');
         const filePath = process.argv[1];
         const wrapperKey = process.argv[2];
         const serverKey = process.argv[3];
-        const envJson = process.argv[4];
+        const envTmp = process.argv[4];
 
         let config = {};
         try { config = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch {}
 
+        const env = JSON.parse(fs.readFileSync(envTmp, 'utf8'));
         if (!config[wrapperKey]) config[wrapperKey] = {};
         config[wrapperKey][serverKey] = {
             command: 'npx',
             args: ['-y', 'github:inXile-Entertainment/playfab-mcp'],
-            env: JSON.parse(envJson)
+            env: env
         };
 
         fs.writeFileSync(filePath, JSON.stringify(config, null, 2) + '\n');
-    " $Path $WrapperKey $ServerKey $EnvJson
+        fs.unlinkSync(envTmp);
+    " $Path $WrapperKey $ServerKey $envTmp
 
     if ($LASTEXITCODE -ne 0) {
         Write-Err "Failed to write $Label config."
@@ -207,18 +213,16 @@ function Main {
         Write-Info "Analytics skipped (no Azure credentials)."
     }
 
-    # Build env JSON via Node to avoid PowerShell encoding issues
-    $envPairs = @("PLAYFAB_TITLE_ID=$titleId", "PLAYFAB_DEV_SECRET_KEY=$secretKey")
-    if ($tenantId)      { $envPairs += "AZURE_TENANT_ID=$tenantId" }
-    if ($clientId)      { $envPairs += "AZURE_CLIENT_ID=$clientId" }
-    if ($clientSecret)  { $envPairs += "AZURE_CLIENT_SECRET=$clientSecret" }
-    if ($adxClusterUrl) { $envPairs += "AZURE_ADX_CLUSTER_URL=$adxClusterUrl" }
-    if ($adxDatabase)   { $envPairs += "AZURE_ADX_DATABASE=$adxDatabase" }
-    $envJson = & node -e "
-        const o = {};
-        process.argv.slice(1).forEach(p => { const i = p.indexOf('='); o[p.slice(0,i)] = p.slice(i+1); });
-        process.stdout.write(JSON.stringify(o));
-    " @envPairs
+    # Build env as JSON string
+    $envObj = @{}
+    $envObj['PLAYFAB_TITLE_ID'] = $titleId
+    $envObj['PLAYFAB_DEV_SECRET_KEY'] = $secretKey
+    if ($tenantId)      { $envObj['AZURE_TENANT_ID'] = $tenantId }
+    if ($clientId)      { $envObj['AZURE_CLIENT_ID'] = $clientId }
+    if ($clientSecret)  { $envObj['AZURE_CLIENT_SECRET'] = $clientSecret }
+    if ($adxClusterUrl) { $envObj['AZURE_ADX_CLUSTER_URL'] = $adxClusterUrl }
+    if ($adxDatabase)   { $envObj['AZURE_ADX_DATABASE'] = $adxDatabase }
+    $envJson = $envObj | ConvertTo-Json -Compress
 
     # -- Select clients --------------------------------------------------------
     Write-Host ""
