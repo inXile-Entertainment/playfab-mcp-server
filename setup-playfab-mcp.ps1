@@ -1,6 +1,6 @@
 # PlayFab MCP Server - Setup Script
 # Configures the PlayFab MCP server for Claude Desktop, Claude Code, VS Code, and/or Cursor.
-# Usage:  irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp/main/setup-playfab-mcp.ps1 -Headers @{Authorization="token $(gh auth token)"} | iex
+# Usage:  $f="$env:TEMP\setup-playfab-mcp.ps1"; gh api repos/inXile-Entertainment/playfab-mcp/contents/setup-playfab-mcp.ps1 -H "Accept: application/vnd.github.raw" > $f; & $f; ri $f
 # Or:     powershell -ExecutionPolicy Bypass -File setup-playfab-mcp.ps1
 
 Set-StrictMode -Version Latest
@@ -108,7 +108,7 @@ function Merge-McpConfig {
 
     # Write env JSON to temp file to avoid PowerShell quote-stripping on args
     $envTmp = Join-Path $env:TEMP "playfab-mcp-env.json"
-    $EnvJson | Out-File -FilePath $envTmp -Encoding ascii -NoNewline
+    Set-Content -Path $envTmp -Value $EnvJson -Encoding ascii -NoNewline
 
     & node -e "
         const fs = require('fs');

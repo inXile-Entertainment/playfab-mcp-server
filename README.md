@@ -93,7 +93,7 @@ Follow these steps to get started:
 Run this in PowerShell to interactively configure the MCP server for your AI client(s) — no need to clone the repo. Requires [GitHub CLI](https://cli.github.com/) (`gh auth login` first):
 
 ```powershell
-irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp/main/setup-playfab-mcp.ps1 -Headers @{Authorization="token $(gh auth token)"} | iex
+$f="$env:TEMP\setup-playfab-mcp.ps1"; gh api repos/inXile-Entertainment/playfab-mcp/contents/setup-playfab-mcp.ps1 -H "Accept: application/vnd.github.raw" > $f; & $f; ri $f
 ```
 
 The script will:
