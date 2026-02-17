@@ -222,7 +222,7 @@ function Main {
     if ($clientSecret)  { $envObj['AZURE_CLIENT_SECRET'] = $clientSecret }
     if ($adxClusterUrl) { $envObj['AZURE_ADX_CLUSTER_URL'] = $adxClusterUrl }
     if ($adxDatabase)   { $envObj['AZURE_ADX_DATABASE'] = $adxDatabase }
-    $envJson = $envObj | ConvertTo-Json -Compress
+    $envJson = ConvertTo-Json -InputObject $envObj -Compress
 
     # -- Select clients --------------------------------------------------------
     Write-Host ""
