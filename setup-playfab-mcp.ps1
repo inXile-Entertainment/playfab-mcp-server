@@ -1,6 +1,6 @@
 # PlayFab MCP Server - Setup Script
 # Configures the PlayFab MCP server for Claude Desktop, Claude Code, VS Code, and/or Cursor.
-# Usage:  irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp/main/setup-playfab-mcp.ps1 | iex
+# Usage:  irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp/main/setup-playfab-mcp.ps1 -Headers @{Authorization="token $(gh auth token)"} | iex
 # Or:     powershell -ExecutionPolicy Bypass -File setup-playfab-mcp.ps1
 
 Set-StrictMode -Version Latest
