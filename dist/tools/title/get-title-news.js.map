@@ -1,0 +1,1 @@
+{"version":3,"file":"get-title-news.js","sourceRoot":"","sources":["../../../src/tools/title/get-title-news.ts"],"names":[],"mappings":";;;AAEa,QAAA,mBAAmB,GAAS;IACvC,IAAI,EAAE,gBAAgB;IACtB,WAAW,EACT,8CAA8C;QAC9C,kDAAkD;QAClD,2DAA2D;IAC7D,WAAW,EAAE;QACX,IAAI,EAAE,QAAQ;QACd,UAAU,EAAE;YACV,KAAK,EAAE;gBACL,IAAI,EAAE,QAAQ;gBACd,WAAW,EAAE,iEAAiE;aAC/E;SACF;KACF;CACF,CAAA"}

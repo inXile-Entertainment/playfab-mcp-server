@@ -1,0 +1,1 @@
+{"version":3,"file":"playfab-sdk.js","sourceRoot":"","sources":["../../src/__mocks__/playfab-sdk.ts"],"names":[],"mappings":";;AAAA;;GAEG;AACH,wDAOoC;AAEpC,MAAM,CAAC,OAAO,GAAG;IACf,OAAO,EAAE,qBAAW;IACpB,YAAY,EAAE,6BAAmB;IACjC,qBAAqB,EAAE,sCAA4B;IACnD,cAAc,EAAE,+BAAqB;IACrC,eAAe,EAAE,+BAAqB;IACtC,aAAa,EAAE,8BAAoB;CACpC,CAAC"}

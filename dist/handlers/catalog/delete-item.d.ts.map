@@ -1,0 +1,1 @@
+{"version":3,"file":"delete-item.d.ts","sourceRoot":"","sources":["../../../src/handlers/catalog/delete-item.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,cAAc,EAAE,MAAM,sBAAsB,CAAC;AACtD,OAAO,EAAE,gBAAgB,EAAE,gBAAgB,EAAE,MAAM,8BAA8B,CAAC;AAIlF,eAAO,MAAM,UAAU,EAAE,cAAc,CAAC,gBAAgB,EAAE,gBAAgB,CAoBzE,CAAC"}

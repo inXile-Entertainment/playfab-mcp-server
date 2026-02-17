@@ -1,0 +1,1 @@
+{"version":3,"file":"update-catalog-config.d.ts","sourceRoot":"","sources":["../../../src/handlers/catalog/update-catalog-config.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,cAAc,EAAE,MAAM,sBAAsB,CAAC;AACtD,OAAO,EAAE,yBAAyB,EAAE,yBAAyB,EAAE,MAAM,8BAA8B,CAAC;AAIpG,eAAO,MAAM,mBAAmB,EAAE,cAAc,CAAC,yBAAyB,EAAE,yBAAyB,CA+BpG,CAAC"}

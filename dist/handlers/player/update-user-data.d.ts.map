@@ -1,0 +1,1 @@
+{"version":3,"file":"update-user-data.d.ts","sourceRoot":"","sources":["../../../src/handlers/player/update-user-data.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,cAAc,EAAE,MAAM,sBAAsB,CAAC;AACtD,OAAO,EAAE,oBAAoB,EAAE,oBAAoB,EAAE,MAAM,8BAA8B,CAAC;AAE1F,eAAO,MAAM,cAAc,EAAE,cAAc,CAAC,oBAAoB,EAAE,oBAAoB,CAkBrF,CAAC"}

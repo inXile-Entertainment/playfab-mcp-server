@@ -1,6 +1,6 @@
 # PlayFab MCP Server - Setup Script
 # Configures the PlayFab MCP server for Claude Desktop, Claude Code, VS Code, and/or Cursor.
-# Usage:  irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp-server/main/setup-playfab-mcp.ps1 | iex
+# Usage:  irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp/main/setup-playfab-mcp.ps1 | iex
 # Or:     powershell -ExecutionPolicy Bypass -File setup-playfab-mcp.ps1
 
 Set-StrictMode -Version Latest
@@ -139,7 +139,7 @@ function Merge-McpConfig {
 
     $serverEntry = [ordered]@{
         command = "npx"
-        args    = @("-y", "@akiojin/playfab-mcp-server")
+        args    = @("-y", "github:inXile-Entertainment/playfab-mcp")
         env     = $Env
     }
 

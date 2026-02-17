@@ -1,0 +1,1 @@
+{"version":3,"file":"get-all-segments.js","sourceRoot":"","sources":["../../../src/tools/player/get-all-segments.ts"],"names":[],"mappings":";;;AAEa,QAAA,qBAAqB,GAAS;IACzC,IAAI,EAAE,kBAAkB;IACxB,WAAW,EACT,oDAAoD;QACpD,wDAAwD;QACxD,2DAA2D;QAC3D,yEAAyE;IAC3E,WAAW,EAAE;QACX,IAAI,EAAE,QAAQ;QACd,UAAU,EAAE,EAAE;QACd,QAAQ,EAAE,EAAE;KACb;CACF,CAAA"}

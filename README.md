@@ -93,7 +93,7 @@ Follow these steps to get started:
 Run this in PowerShell to interactively configure the MCP server for your AI client(s) — no need to clone the repo:
 
 ```powershell
-irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp-server/main/setup-playfab-mcp.ps1 | iex
+irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp/main/setup-playfab-mcp.ps1 | iex
 ```
 
 The script will:
@@ -278,7 +278,7 @@ Open Claude Desktop and navigate to **File > Settings > Developer > Edit Config*
       "command": "npx",
       "args": [
         "-y",
-        "@akiojin/playfab-mcp-server"
+        "github:inXile-Entertainment/playfab-mcp"
       ],
       "env": {
         "PLAYFAB_TITLE_ID": "Your PlayFab Title ID",
@@ -303,7 +303,7 @@ Add the server to your project's `.mcp.json` or your global Claude Code settings
   "mcpServers": {
     "playfab": {
       "command": "npx",
-      "args": ["-y", "@akiojin/playfab-mcp-server"],
+      "args": ["-y", "github:inXile-Entertainment/playfab-mcp"],
       "env": {
         "PLAYFAB_TITLE_ID": "Your PlayFab Title ID",
         "PLAYFAB_DEV_SECRET_KEY": "Your PlayFab Developer Secret Key",
@@ -325,7 +325,7 @@ Create `.vscode/mcp.json` in your project root:
   "servers": {
     "PlayFab": {
       "command": "npx",
-      "args": ["-y", "@akiojin/playfab-mcp-server"],
+      "args": ["-y", "github:inXile-Entertainment/playfab-mcp"],
       "env": {
         "PLAYFAB_TITLE_ID": "Your PlayFab Title ID",
         "PLAYFAB_DEV_SECRET_KEY": "Your PlayFab Developer Secret Key",
@@ -469,8 +469,8 @@ When using this server:
 
 If you encounter any issues or have questions about using the PlayFab MCP Server, here are the best ways to get support:
 
-1. **GitHub Issues**: For bug reports and feature requests, please [create an issue](https://github.com/akiojin/playfab-mcp-server/issues)
-2. **Discussions**: For general questions and community support, use [GitHub Discussions](https://github.com/akiojin/playfab-mcp-server/discussions)
+1. **GitHub Issues**: For bug reports and feature requests, please [create an issue](https://github.com/inXile-Entertainment/playfab-mcp/issues)
+2. **Discussions**: For general questions and community support, use [GitHub Discussions](https://github.com/inXile-Entertainment/playfab-mcp/discussions)
 3. **Documentation**: Check the README and code comments for usage examples
 
 ### Before Creating an Issue

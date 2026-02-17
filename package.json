@@ -1,5 +1,5 @@
 {
-  "name": "@akiojin/playfab-mcp-server",
+  "name": "@inXile-Entertainment/playfab-mcp",
   "version": "1.1.0",
   "description": "PlayFab MCP Server",
   "license": "MIT",
@@ -57,12 +57,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akiojin/playfab-mcp-server.git"
+    "url": "git+https://github.com/inXile-Entertainment/playfab-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/akiojin/playfab-mcp-server/issues"
+    "url": "https://github.com/inXile-Entertainment/playfab-mcp/issues"
   },
-  "homepage": "https://github.com/akiojin/playfab-mcp-server#readme",
+  "homepage": "https://github.com/inXile-Entertainment/playfab-mcp#readme",
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",

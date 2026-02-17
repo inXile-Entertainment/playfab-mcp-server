@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GrantItemsToUsers = exports.ExecuteInventoryOperations = exports.UpdateInventoryItems = exports.SubtractInventoryItems = exports.DeleteInventoryItems = exports.GetInventoryCollectionIds = exports.GetInventoryItems = exports.AddInventoryItems = void 0;
+var add_inventory_items_js_1 = require("./add-inventory-items.js");
+Object.defineProperty(exports, "AddInventoryItems", { enumerable: true, get: function () { return add_inventory_items_js_1.AddInventoryItems; } });
+var get_inventory_items_js_1 = require("./get-inventory-items.js");
+Object.defineProperty(exports, "GetInventoryItems", { enumerable: true, get: function () { return get_inventory_items_js_1.GetInventoryItems; } });
+var get_inventory_collection_ids_js_1 = require("./get-inventory-collection-ids.js");
+Object.defineProperty(exports, "GetInventoryCollectionIds", { enumerable: true, get: function () { return get_inventory_collection_ids_js_1.GetInventoryCollectionIds; } });
+var delete_inventory_items_js_1 = require("./delete-inventory-items.js");
+Object.defineProperty(exports, "DeleteInventoryItems", { enumerable: true, get: function () { return delete_inventory_items_js_1.DeleteInventoryItems; } });
+var subtract_inventory_items_js_1 = require("./subtract-inventory-items.js");
+Object.defineProperty(exports, "SubtractInventoryItems", { enumerable: true, get: function () { return subtract_inventory_items_js_1.SubtractInventoryItems; } });
+var update_inventory_items_js_1 = require("./update-inventory-items.js");
+Object.defineProperty(exports, "UpdateInventoryItems", { enumerable: true, get: function () { return update_inventory_items_js_1.UpdateInventoryItems; } });
+var execute_inventory_operations_js_1 = require("./execute-inventory-operations.js");
+Object.defineProperty(exports, "ExecuteInventoryOperations", { enumerable: true, get: function () { return execute_inventory_operations_js_1.ExecuteInventoryOperations; } });
+var grant_items_to_users_js_1 = require("./grant-items-to-users.js");
+Object.defineProperty(exports, "GrantItemsToUsers", { enumerable: true, get: function () { return grant_items_to_users_js_1.GrantItemsToUsers; } });
+//# sourceMappingURL=index.js.map
