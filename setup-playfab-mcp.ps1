@@ -1,36 +1,20 @@
-﻿<#
-.SYNOPSIS
-    PlayFab MCP Server - Setup Script
-    Configures the PlayFab MCP server for Claude Desktop, Claude Code, VS Code, and/or Cursor.
-
-.DESCRIPTION
-    This script prompts for your PlayFab and (optionally) Azure AD credentials,
-    then writes the correct MCP configuration for your chosen AI client(s).
-    No need to clone the repo - it uses the published npm package.
-
-.EXAMPLE
-    # Run from PowerShell:
-    irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp-server/main/setup-playfab-mcp.ps1 | iex
-
-    # Or if downloaded locally:
-    powershell -ExecutionPolicy Bypass -File setup-playfab-mcp.ps1
-#>
-
-param(
-    [switch]$Force
-)
+# PlayFab MCP Server - Setup Script
+# Configures the PlayFab MCP server for Claude Desktop, Claude Code, VS Code, and/or Cursor.
+# Usage:  irm https://raw.githubusercontent.com/inXile-Entertainment/playfab-mcp-server/main/setup-playfab-mcp.ps1 | iex
+# Or:     powershell -ExecutionPolicy Bypass -File setup-playfab-mcp.ps1
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+$Force = $false
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# -- Helpers -----------------------------------------------------------------
 
 function Write-Banner {
     Write-Host ""
-    Write-Host "  ╔══════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "  ║       PlayFab MCP Server - Setup             ║" -ForegroundColor Cyan
-    Write-Host "  ║  github.com/inXile-Entertainment/playfab-mcp  ║" -ForegroundColor Cyan
-    Write-Host "  ╚══════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "  +================================================+" -ForegroundColor Cyan
+    Write-Host "  |       PlayFab MCP Server - Setup                |" -ForegroundColor Cyan
+    Write-Host "  |  github.com/inXile-Entertainment/playfab-mcp    |" -ForegroundColor Cyan
+    Write-Host "  +================================================+" -ForegroundColor Cyan
     Write-Host ""
 }
 
@@ -98,7 +82,7 @@ function Write-ConfigFile {
     return $true
 }
 
-# ── Check prerequisites ─────────────────────────────────────────────────────
+# -- Check prerequisites -----------------------------------------------------
 
 function Test-NodeInstalled {
     try {
@@ -115,7 +99,7 @@ function Test-NodeInstalled {
     return $false
 }
 
-# ── Build config JSON ────────────────────────────────────────────────────────
+# -- Build config JSON -------------------------------------------------------
 
 function Build-EnvBlock {
     param(
@@ -142,7 +126,7 @@ function Build-EnvBlock {
     return $env
 }
 
-# ── Merge into existing config ───────────────────────────────────────────────
+# -- Merge into existing config -----------------------------------------------
 
 function Merge-McpConfig {
     param(
@@ -215,7 +199,7 @@ function Merge-McpConfig {
         }
     }
 
-    # No existing file or parse failed — write fresh
+    # No existing file or parse failed - write fresh
     $fresh = [ordered]@{
         $WrapperKey = [ordered]@{ $ServerKey = $serverEntry }
     }
@@ -228,7 +212,7 @@ function Merge-McpConfig {
     Write-Step "$Label configured: $Path"
 }
 
-# ── Main ─────────────────────────────────────────────────────────────────────
+# -- Main --------------------------------------------------------------------
 
 function Main {
     Write-Banner
@@ -242,7 +226,7 @@ function Main {
     $nodeVersion = & node --version
     Write-Step "Node.js $nodeVersion detected"
 
-    # ── Collect credentials ──────────────────────────────────────────────
+    # -- Collect credentials ---------------------------------------------------
     Write-Host ""
     Write-Host "  --- PlayFab Credentials (required) ---" -ForegroundColor White
     Write-Info "Find these in PlayFab Game Manager > Settings"
@@ -306,7 +290,7 @@ function Main {
         -TenantId $tenantId -ClientId $clientId -ClientSecret $clientSecret `
         -AdxClusterUrl $adxClusterUrl -AdxDatabase $adxDatabase
 
-    # ── Select clients ───────────────────────────────────────────────────
+    # -- Select clients --------------------------------------------------------
     Write-Host ""
     Write-Host "  --- Select AI Client(s) to configure ---" -ForegroundColor White
     Write-Host ""
@@ -328,7 +312,7 @@ function Main {
 
     Write-Host ""
 
-    # ── Claude Desktop ───────────────────────────────────────────────────
+    # -- Claude Desktop --------------------------------------------------------
     if ($choices -contains '1') {
         $claudeDesktopPath = Join-Path $env:APPDATA "Claude\claude_desktop_config.json"
         Merge-McpConfig -Path $claudeDesktopPath `
@@ -339,7 +323,7 @@ function Main {
         $configured += "Claude Desktop"
     }
 
-    # ── Claude Code ──────────────────────────────────────────────────────
+    # -- Claude Code -----------------------------------------------------------
     if ($choices -contains '2') {
         $claudeCodePath = Join-Path $env:USERPROFILE ".claude\mcp.json"
         Merge-McpConfig -Path $claudeCodePath `
@@ -350,7 +334,7 @@ function Main {
         $configured += "Claude Code"
     }
 
-    # ── VS Code ──────────────────────────────────────────────────────────
+    # -- VS Code ---------------------------------------------------------------
     if ($choices -contains '3') {
         Write-Host ""
         $vscodePath = Read-Host "  VS Code project path (where .vscode/ will be created)"
@@ -367,7 +351,7 @@ function Main {
         $configured += "VS Code"
     }
 
-    # ── Cursor ───────────────────────────────────────────────────────────
+    # -- Cursor ----------------------------------------------------------------
     if ($choices -contains '4') {
         Write-Host ""
         $cursorPath = Read-Host "  Cursor project path (where .cursor/ will be created)"
@@ -384,9 +368,9 @@ function Main {
         $configured += "Cursor"
     }
 
-    # ── Summary ──────────────────────────────────────────────────────────
+    # -- Summary ---------------------------------------------------------------
     Write-Host ""
-    Write-Host "  ────────────────────────────────────────────────" -ForegroundColor Cyan
+    Write-Host "  ------------------------------------------------" -ForegroundColor Cyan
 
     if ($configured.Count -eq 0) {
         Write-Warn "No clients were configured."
