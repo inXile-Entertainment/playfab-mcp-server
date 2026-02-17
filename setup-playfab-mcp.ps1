@@ -56,32 +56,6 @@ function Read-Optional {
     return $value.Trim()
 }
 
-function Write-ConfigFile {
-    param(
-        [string]$Path,
-        [string]$Content,
-        [string]$Label
-    )
-
-    $dir = Split-Path -Parent $Path
-    if (-not (Test-Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
-    }
-
-    if ((Test-Path $Path) -and -not $Force) {
-        Write-Warn "$Label config already exists: $Path"
-        $overwrite = Read-Host "  Overwrite? (y/N)"
-        if ($overwrite -ne 'y' -and $overwrite -ne 'Y') {
-            Write-Info "Skipped $Label."
-            return $false
-        }
-    }
-
-    $Content | Set-Content -Path $Path -Encoding UTF8
-    Write-Step "$Label configured: $Path"
-    return $true
-}
-
 # -- Check prerequisites -----------------------------------------------------
 
 function Test-NodeInstalled {
@@ -99,75 +73,25 @@ function Test-NodeInstalled {
     return $false
 }
 
-# -- Build config JSON -------------------------------------------------------
-
-function Build-EnvBlock {
-    param(
-        [string]$TitleId,
-        [string]$SecretKey,
-        [string]$TenantId,
-        [string]$ClientId,
-        [string]$ClientSecret,
-        [string]$AdxClusterUrl,
-        [string]$AdxDatabase
-    )
-
-    $env = [ordered]@{
-        PLAYFAB_TITLE_ID      = $TitleId
-        PLAYFAB_DEV_SECRET_KEY = $SecretKey
-    }
-
-    if ($TenantId)     { $env['AZURE_TENANT_ID']       = $TenantId }
-    if ($ClientId)     { $env['AZURE_CLIENT_ID']        = $ClientId }
-    if ($ClientSecret) { $env['AZURE_CLIENT_SECRET']    = $ClientSecret }
-    if ($AdxClusterUrl){ $env['AZURE_ADX_CLUSTER_URL']  = $AdxClusterUrl }
-    if ($AdxDatabase)  { $env['AZURE_ADX_DATABASE']     = $AdxDatabase }
-
-    return $env
-}
-
-# -- Merge into existing config -----------------------------------------------
+# -- Merge MCP config via Node.js --------------------------------------------
 
 function Merge-McpConfig {
     param(
         [string]$Path,
         [string]$ServerKey,
         [string]$WrapperKey,
-        [System.Collections.Specialized.OrderedDictionary]$Env,
+        [string]$EnvJson,
         [string]$Label
     )
 
-    $serverEntry = [ordered]@{
-        command = "npx"
-        args    = @("-y", "github:inXile-Entertainment/playfab-mcp")
-        env     = $Env
-    }
-
-    $hash = $null
-
-    if (Test-Path $Path) {
-        try {
-            $existing = Get-Content -Path $Path -Raw -Encoding UTF8 | ConvertFrom-Json
-            $hash = @{}
-            foreach ($prop in $existing.PSObject.Properties) {
-                $hash[$prop.Name] = $prop.Value
-            }
-        } catch {
-            Write-Warn "Could not parse existing $Label config. A backup will be saved."
-            Copy-Item -Path $Path -Destination "$Path.bak" -Force
-        }
-    }
-
-    if (-not $hash) { $hash = @{} }
-
-    # Check if playfab server already exists
-    $wrapper = $hash[$WrapperKey]
-    if ($wrapper) {
-        $servers = @{}
-        foreach ($prop in $wrapper.PSObject.Properties) {
-            $servers[$prop.Name] = $prop.Value
-        }
-        if ($servers.ContainsKey($ServerKey) -and -not $Force) {
+    if ((Test-Path $Path) -and -not $Force) {
+        $hasKey = & node -e "
+            try {
+                const c = JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));
+                process.stdout.write(String(!!(c[process.argv[2]]||{})[process.argv[3]]));
+            } catch { process.stdout.write('false'); }
+        " $Path $WrapperKey $ServerKey
+        if ($hasKey -eq 'true') {
             Write-Warn "$Label already has a '$ServerKey' MCP server configured in: $Path"
             $overwrite = Read-Host "  Overwrite the playfab entry? (y/N)"
             if ($overwrite -ne 'y' -and $overwrite -ne 'Y') {
@@ -175,33 +99,38 @@ function Merge-McpConfig {
                 return
             }
         }
-        $servers[$ServerKey] = $serverEntry
-
-        $orderedServers = [ordered]@{}
-        foreach ($key in $servers.Keys) {
-            $orderedServers[$key] = $servers[$key]
-        }
-        $hash[$WrapperKey] = $orderedServers
-    } else {
-        $hash[$WrapperKey] = [ordered]@{ $ServerKey = $serverEntry }
     }
 
-    $orderedHash = [ordered]@{}
-    foreach ($key in $hash.Keys) {
-        $orderedHash[$key] = $hash[$key]
-    }
-
-    $json = $orderedHash | ConvertTo-Json -Depth 10
     $dir = Split-Path -Parent $Path
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
-    $json | Set-Content -Path $Path -Encoding UTF8
-    if ($wrapper) {
-        Write-Step "$Label updated (merged): $Path"
-    } else {
-        Write-Step "$Label configured: $Path"
+
+    & node -e "
+        const fs = require('fs');
+        const filePath = process.argv[1];
+        const wrapperKey = process.argv[2];
+        const serverKey = process.argv[3];
+        const envJson = process.argv[4];
+
+        let config = {};
+        try { config = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch {}
+
+        if (!config[wrapperKey]) config[wrapperKey] = {};
+        config[wrapperKey][serverKey] = {
+            command: 'npx',
+            args: ['-y', 'github:inXile-Entertainment/playfab-mcp'],
+            env: JSON.parse(envJson)
+        };
+
+        fs.writeFileSync(filePath, JSON.stringify(config, null, 2) + '\n');
+    " $Path $WrapperKey $ServerKey $EnvJson
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Err "Failed to write $Label config."
+        return
     }
+    Write-Step "$Label configured: $Path"
 }
 
 # -- Main --------------------------------------------------------------------
@@ -278,9 +207,18 @@ function Main {
         Write-Info "Analytics skipped (no Azure credentials)."
     }
 
-    $envBlock = Build-EnvBlock -TitleId $titleId -SecretKey $secretKey `
-        -TenantId $tenantId -ClientId $clientId -ClientSecret $clientSecret `
-        -AdxClusterUrl $adxClusterUrl -AdxDatabase $adxDatabase
+    # Build env JSON via Node to avoid PowerShell encoding issues
+    $envPairs = @("PLAYFAB_TITLE_ID=$titleId", "PLAYFAB_DEV_SECRET_KEY=$secretKey")
+    if ($tenantId)      { $envPairs += "AZURE_TENANT_ID=$tenantId" }
+    if ($clientId)      { $envPairs += "AZURE_CLIENT_ID=$clientId" }
+    if ($clientSecret)  { $envPairs += "AZURE_CLIENT_SECRET=$clientSecret" }
+    if ($adxClusterUrl) { $envPairs += "AZURE_ADX_CLUSTER_URL=$adxClusterUrl" }
+    if ($adxDatabase)   { $envPairs += "AZURE_ADX_DATABASE=$adxDatabase" }
+    $envJson = & node -e "
+        const o = {};
+        process.argv.slice(1).forEach(p => { const i = p.indexOf('='); o[p.slice(0,i)] = p.slice(i+1); });
+        process.stdout.write(JSON.stringify(o));
+    " @envPairs
 
     # -- Select clients --------------------------------------------------------
     Write-Host ""
@@ -310,7 +248,7 @@ function Main {
         Merge-McpConfig -Path $claudeDesktopPath `
             -ServerKey "playfab" `
             -WrapperKey "mcpServers" `
-            -Env $envBlock `
+            -EnvJson $envJson `
             -Label "Claude Desktop"
         $configured += "Claude Desktop"
     }
@@ -321,7 +259,7 @@ function Main {
         Merge-McpConfig -Path $claudeCodePath `
             -ServerKey "playfab" `
             -WrapperKey "mcpServers" `
-            -Env $envBlock `
+            -EnvJson $envJson `
             -Label "Claude Code"
         $configured += "Claude Code"
     }
@@ -338,7 +276,7 @@ function Main {
         Merge-McpConfig -Path $vscodeConfigPath `
             -ServerKey "PlayFab" `
             -WrapperKey "servers" `
-            -Env $envBlock `
+            -EnvJson $envJson `
             -Label "VS Code"
         $configured += "VS Code"
     }
@@ -355,7 +293,7 @@ function Main {
         Merge-McpConfig -Path $cursorConfigPath `
             -ServerKey "playfab" `
             -WrapperKey "mcpServers" `
-            -Env $envBlock `
+            -EnvJson $envJson `
             -Label "Cursor"
         $configured += "Cursor"
     }
